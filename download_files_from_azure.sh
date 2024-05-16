@@ -23,7 +23,7 @@ while true; do
                                 end=$((size - 1)) # end of the last chunk is size - 1
                         fi
                         expected_chunk_size=$((end - start + 1))
-                        part_number=$(printf "%010d" $i)
+                        part_number=$(printf "%010d" $i) # enough zeros hahahaha
                         (
                                 while true; do
                                         if [ -f ${file}.part${part_number} ] && [ $(stat -c%s "${file}.part${part_number}") -eq $expected_chunk_size ]; then
