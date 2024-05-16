@@ -1,6 +1,7 @@
 #!/bin/bash -x
 
 mirror="https://azureopendatastorage.blob.core.windows.net/openstt/ru_open_stt_opus"
+SIMULTANEOUSDOWNLOADS=10 # the script will START this number of downloads in background and will wait for ALL of them to finish before starting next batch
 
 while true; do
 
@@ -12,7 +13,7 @@ while true; do
         fi
         size=$(curl -sI "${mirror}/${file}" | awk '/Content-Length/ {print $2}' | tr -d '\r')
         if [ $size -lt 104857600 ]; then
-                curl -o ${file} "${mirror}/${file}"
+                curl -o ${file} "${mirror}/${file}" # for small files, download the whole file at once
         else
                 chunks=$((size / 104857600)) # 100MB in bytes
                 for ((i=0; i<=chunks; i++)); do
@@ -34,12 +35,12 @@ while true; do
                                         sleep 1
                                 done
                         ) &
-                        if (( (i+1) % 10 == 0 )); then
+                        if (( (i+1) % $SIMULTANEOUSDOWNLOADS == 0 )); then
                                 wait # Wait for all background jobs to finish
                         fi
                 done
                 wait # Wait for any remaining background jobs to finish
-                ls ${file}.part* | sort -n | xargs cat > ${file}
+                ls ${file}.part* | sort -n | xargs cat > ${file} # this sorting part is not important if the part's numbers are padded with enough zeros
                 rm ${file}.part*
         fi
     done
