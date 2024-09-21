@@ -35,7 +35,7 @@ while true; do
                                                 sleep 1
                                         done
                                 ) &
-                                if (((i + 1) % $SIMULTANEOUSDOWNLOADS == 0)); then
+                                if [[ $(((i + 1) % $SIMULTANEOUSDOWNLOADS)) == 0 ]]; then
                                         wait # Wait for all background jobs to finish
                                 fi
                         done
